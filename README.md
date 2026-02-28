@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Portal Econômico - Dashboard de Índices de Inflação
 
-## Getting Started
+Dashboard moderno e automatizado para monitoramento dos principais índices de inflação brasileiros (IPCA, IGP-M, IGP-DI e IPC-FIPE), com histórico completo desde 1993.
 
-First, run the development server:
+## 🚀 Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Dashboard em Tempo Real**: Visualização imediata dos últimos valores publicados pelo Banco Central (SGS).
+- **Gráficos de Tendência**:
+  - Variação Mensal (%) dos últimos 24 meses.
+  - Acumulado de 12 Meses (%) para análise de inflação anualizada.
+- **Planilha Histórica Profunda**: Acesso a dados desde **1993** (Plano Real), permitindo exportação para **Excel** e **CSV**.
+- **Sincronização Inteligente**: O sistema monitora atualizações do Banco Central automaticamente nos bastidores sem necessidade de intervenção manual.
+- **Performance Otimizada**: Utiliza *Edge Caching* (SWR) para carregamento instantâneo no Vercel.
+
+## 🛠️ Tecnologias
+
+- **Framework**: [Next.js 14+](https://nextjs.org/) (App Router)
+- **Banco de Dados**: [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres) (Neon)
+- **Estilização**: Tailwind CSS / Vanilla CSS
+- **Ícones**: Lucide React
+- **Gráficos**: Recharts
+- **API Fonte**: API de Dados Abertos do Banco Central do Brasil (SGS).
+
+## 📡 Arquitetura de Dados
+
+O projeto utiliza uma estratégia de **Stale-While-Revalidate (SWR)** no backend:
+1. O usuário acessa a página.
+2. O Next.js entrega os dados cacheados instantaneamente.
+3. Simultaneamente, uma função em segundo plano verifica se o Banco Central publicou novos dados.
+4. Caso haja novidades, o banco de dados é atualizado via transação em lote (*Bulk Insert*).
+
+## 📦 Configuração e Instalação
+
+### Pré-requisitos
+- Node.js 18+
+- Conta no Vercel com um banco de dados Postgres criado.
+
+### Variáveis de Ambiente
+Crie um arquivo `.env.local` ou configure no Vercel:
+```env
+POSTGRES_URL=...
+POSTGRES_PRISMA_URL=...
+POSTGRES_URL_NON_POOLING=...
+POSTGRES_USER=...
+POSTGRES_HOST=...
+POSTGRES_PASSWORD=...
+POSTGRES_DATABASE=...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Comandos
+```bash
+# Instalar dependências
+npm install
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+# Rodar em desenvolvimento
+npm run dev
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Build de produção
+npm run build
+```
 
-## Learn More
+## 🧹 Manutenção do Banco
 
-To learn more about Next.js, take a look at the following resources:
+Para limpar dados antigos ou reiniciar a carga total:
+1. Acesse o SQL Editor no Vercel/Neon.
+2. Execute: `TRUNCATE TABLE indicators;`
+3. Acesse o site e o sistema repopulará tudo automaticamente desde 1993.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Desenvolvido para análise econômica simplificada e de alta performance.
