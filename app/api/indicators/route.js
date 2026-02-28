@@ -4,29 +4,29 @@ import { checkAndSync } from '@/lib/sync-utils';
 
 export async function GET() {
     try {
-        // Automatic sync check
-        // We run it for both dev and prod if the DB vars are present
-        let syncStatus = null;
-        try {
-            syncStatus = await checkAndSync();
-        } catch (err) {
-            console.error("Sync pre-check error:", err);
-        }
-
+        // Step 1: Pre-fetch data to check if DB is empty
         const { rows: data } = await sql`
             SELECT name, date::text as date, value 
             FROM indicators 
             ORDER BY date ASC
         `;
 
+        // Step 2: Adaptive Sync
         if (data.length === 0) {
+            // DATABASE EMPTY: Block and wait for sync
+            console.log("[API] Database empty, blocking for sync...");
+            await checkAndSync();
             return NextResponse.json({
                 message: "Database is being populated. Please refresh in 20 seconds.",
-                debug: syncStatus
+                status: "syncing"
             });
+        } else {
+            // DATABASE HAS DATA: Trigger sync in BACKGROUND (non-blocking)
+            console.log("[API] Database has data, triggering background sync if needed...");
+            checkAndSync().catch(err => console.error("[API] Background sync error:", err));
         }
 
-        // Group by indicator
+        // Step 3: Process the data
         const grouped = data.reduce((acc, curr) => {
             if (!acc[curr.name]) {
                 acc[curr.name] = [];
@@ -35,7 +35,6 @@ export async function GET() {
             return acc;
         }, {});
 
-        // Process each series to calculate accumulations
         const processed = {};
         Object.keys(grouped).forEach(name => {
             const series = grouped[name];
@@ -45,11 +44,8 @@ export async function GET() {
             for (let i = 0; i < series.length; i++) {
                 const current = series[i];
                 const valFactor = 1 + (current.value / 100);
-
-                // Nº Índice (Cumulative growth base 100)
                 currentIdx = currentIdx * valFactor;
 
-                // YTD (Cumulative growth since January of current year)
                 const currDate = new Date(current.date + 'T12:00:00Z');
                 const currYear = currDate.getUTCFullYear();
                 let ytdFactor = 1;
@@ -60,7 +56,6 @@ export async function GET() {
                 }
                 const ytd = (ytdFactor - 1) * 100;
 
-                // L12M (Cumulative growth of last 12 months)
                 let l12m = null;
                 if (i >= 11) {
                     let l12mFactor = 1;
@@ -77,19 +72,26 @@ export async function GET() {
                     l12m: l12m
                 });
             }
-            processed[name] = results.reverse(); // Newest first
+            processed[name] = results.reverse();
         });
 
-        // Get latest for each
         const latest = Object.keys(processed).reduce((acc, name) => {
             acc[name] = processed[name][0];
             return acc;
         }, {});
 
+        // Step 4: Return with Caching Headers
+        // s-maxage=3600: Shared cache for 1 hour
+        // stale-while-revalidate=86400: Serve stale for up to 24h while updating in background
         return NextResponse.json({
             latest,
             history: processed
+        }, {
+            headers: {
+                'Cache-Control': 's-maxage=3600, stale-while-revalidate=86400',
+            }
         });
+
     } catch (error) {
         console.error('Database error:', error);
         return NextResponse.json({ error: 'Failed to fetch indicators' }, { status: 500 });
