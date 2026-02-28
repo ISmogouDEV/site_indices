@@ -4,10 +4,13 @@ import { checkAndSync } from '@/lib/sync-utils';
 
 export async function GET() {
     try {
-        // Automatic sync check in background (non-blocking)
-        // Note: In local dev without Vercel Env vars, this will fail gracefully or you need local postgres
-        if (process.env.VERCEL_ENV) {
-            checkAndSync().catch(err => console.error("Sync error:", err));
+        // Automatic sync check
+        // We run it for both dev and prod if the DB vars are present
+        let syncStatus = null;
+        try {
+            syncStatus = await checkAndSync();
+        } catch (err) {
+            console.error("Sync pre-check error:", err);
         }
 
         const { rows: data } = await sql`
@@ -17,9 +20,10 @@ export async function GET() {
         `;
 
         if (data.length === 0) {
-            // If DB is empty, try a blocking sync once
-            await checkAndSync();
-            return NextResponse.json({ message: "Database was empty, sync triggered. Please refresh." });
+            return NextResponse.json({
+                message: "Database is being populated. Please refresh in 20 seconds.",
+                debug: syncStatus
+            });
         }
 
         // Group by indicator
