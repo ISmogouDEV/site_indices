@@ -29,12 +29,44 @@ export default function Home() {
     fetchData();
   }, []);
 
-  if (loading) {
+  // Auto-retry if database is empty/syncing
+  useEffect(() => {
+    if (data?.message) {
+      const timer = setTimeout(() => {
+        fetchData();
+      }, 5000); // Retry in 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [data]);
+
+  if (loading && !data) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#fdfdfd] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <RefreshCw className="animate-spin text-blue-600" size={40} />
           <p className="text-slate-500 font-medium">Carregando indicadores...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Special loading state for first-time sync
+  if (data?.message && !data.latest) {
+    return (
+      <div className="min-h-screen bg-[#fdfdfd] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6 max-w-md text-center p-8 bg-white rounded-3xl shadow-xl border border-blue-50">
+          <div className="relative">
+            <RefreshCw className="animate-spin text-blue-600" size={48} />
+          </div>
+          <h2 className="text-2xl font-black text-[#051B40]">Preparando Banco de Dados</h2>
+          <p className="text-slate-500 font-medium">
+            Seu banco de dados no Vercel está sendo populado com o histórico do Banco Central.
+            Isso pode levar até 30 segundos na primeira carga.
+          </p>
+          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div className="bg-blue-600 h-full animate-pulse w-3/4"></div>
+          </div>
+          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Atualizando em instantes...</p>
         </div>
       </div>
     );
