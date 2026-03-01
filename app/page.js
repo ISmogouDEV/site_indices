@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import IndicatorCard from '@/components/IndicatorCard';
 import ChartSection from '@/components/ChartSection';
 import HistoryTable from '@/components/HistoryTable';
-import { RefreshCw, BarChart4, Table as TableIcon } from 'lucide-react';
+import AdjustmentCalculator from '@/components/AdjustmentCalculator';
+import { RefreshCw, BarChart4, Table as TableIcon, Calculator } from 'lucide-react';
 
 export default function Home() {
   const [data, setData] = useState(null);
@@ -99,14 +100,17 @@ export default function Home() {
           {indices.map(name => (
             <div
               key={name}
-              onClick={() => setSelectedIndex(name)}
-              className={`cursor-pointer transition-all ${selectedIndex === name ? 'ring-4 ring-[#0067B4] ring-offset-4 rounded-2xl' : ''}`}
+              onClick={() => {
+                setSelectedIndex(name);
+                if (activeTab === 'calc') setActiveTab('summary');
+              }}
+              className={`cursor-pointer transition-all ${selectedIndex === name && activeTab !== 'calc' ? 'ring-4 ring-[#0067B4] ring-offset-4 rounded-2xl' : ''}`}
             >
               <IndicatorCard
                 name={name}
-                value={data?.latest[name]?.value}
-                l12m={data?.latest[name]?.l12m}
-                date={data?.latest[name]?.date}
+                value={data?.latest?.[name]?.value}
+                l12m={data?.latest?.[name]?.l12m}
+                date={data?.latest?.[name]?.date}
               />
             </div>
           ))}
@@ -114,22 +118,28 @@ export default function Home() {
 
         {/* Dynamic Detail Section */}
         <div className="mt-12">
-          <div className="flex items-center gap-4 mb-8 bg-white p-1 rounded-full w-fit border border-slate-200 shadow-sm">
+          <div className="flex flex-wrap items-center gap-4 mb-8 bg-white p-1 rounded-full w-fit border border-slate-200 shadow-sm">
             <button
               onClick={() => setActiveTab('summary')}
-              className={`flex items-center gap-2 px-8 py-3 rounded-full transition-all font-black uppercase text-xs tracking-widest ${activeTab === 'summary' ? 'bg-[#0067B4] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
+              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-black uppercase text-[10px] md:text-xs tracking-widest ${activeTab === 'summary' ? 'bg-[#0067B4] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
             >
               <BarChart4 size={18} /> Gráfico Trend
             </button>
             <button
               onClick={() => setActiveTab('table')}
-              className={`flex items-center gap-2 px-8 py-3 rounded-full transition-all font-black uppercase text-xs tracking-widest ${activeTab === 'table' ? 'bg-[#0067B4] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
+              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-black uppercase text-[10px] md:text-xs tracking-widest ${activeTab === 'table' ? 'bg-[#0067B4] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
             >
               <TableIcon size={18} /> Planilha Histórica
             </button>
+            <button
+              onClick={() => setActiveTab('calc')}
+              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-black uppercase text-[10px] md:text-xs tracking-widest ${activeTab === 'calc' ? 'bg-[#E30613] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
+            >
+              <Calculator size={18} /> Calculadora de Reajuste
+            </button>
           </div>
 
-          {activeTab === 'summary' ? (
+          {activeTab === 'summary' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                 <ChartSection
@@ -148,13 +158,19 @@ export default function Home() {
                 />
               </div>
             </div>
-          ) : (
+          )}
+
+          {activeTab === 'table' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <HistoryTable
                 data={data?.history[selectedIndex]}
                 name={selectedIndex}
               />
             </div>
+          )}
+
+          {activeTab === 'calc' && (
+            <AdjustmentCalculator allData={data} />
           )}
         </div>
       </div>
