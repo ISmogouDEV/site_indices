@@ -20,7 +20,12 @@ export default function AdjustmentCalculator({ allData }) {
     ? [...new Set(allData.history[indexName].map(item => {
       const d = new Date(item.date + 'T12:00:00Z');
       return `${(d.getUTCMonth() + 1).toString().padStart(2, '0')}/${d.getUTCFullYear()}`;
-    }))].reverse()
+
+    }))].sort((a, b) => {
+      const [ma, ya] = a.split('/');
+      const [mb, yb] = b.split('/');
+      return new Date(`${yb}-${mb}`) - new Date(`${ya}-${ma}`);
+    })
     : [];
 
   useEffect(() => {
@@ -406,7 +411,8 @@ export default function AdjustmentCalculator({ allData }) {
                   <div className="grid grid-cols-2 gap-4 w-full">
                     <div className="bg-white p-4 rounded-2xl border border-slate-100 flex flex-col justify-center items-center">
                       <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Variação Total</p>
-                      <p className="text-lg font-black text-green-600">+{formatPercent(result.totalPercentage)}</p>
+                      <p className={`text-lg font-black ${result.totalPercentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {result.totalPercentage >= 0 ? '+' : ''}{formatPercent(result.totalPercentage)}</p>
                       <div className="mt-1 px-2 py-0.5 bg-slate-100 rounded-md text-[8px] font-bold text-slate-500 uppercase tracking-tighter">
                         {result.isAnnualized ? 'Reajuste Anual' : 'Variação Acumulada'}
                       </div>
