@@ -5,7 +5,8 @@ import IndicatorCard from '@/components/IndicatorCard';
 import ChartSection from '@/components/ChartSection';
 import HistoryTable from '@/components/HistoryTable';
 import AdjustmentCalculator from '@/components/AdjustmentCalculator';
-import { RefreshCw, BarChart4, Table as TableIcon, Calculator, Sun, Moon } from 'lucide-react';
+import InterestFineCalculator from '@/components/InterestFineCalculator';
+import { RefreshCw, BarChart4, Table as TableIcon, Calculator, TrendingUp, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/lib/ThemeContext';
 
 export default function Home() {
@@ -153,6 +154,12 @@ export default function Home() {
             >
               <Calculator size={18} /> Calculadora de Reajuste
             </button>
+            <button
+              onClick={() => setActiveTab('interest')}
+              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-black uppercase text-[10px] md:text-xs tracking-widest ${activeTab === 'interest' ? 'bg-emerald-600 text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
+            >
+              <TrendingUp size={18} /> Juros e Multa
+            </button>
           </div>
 
           {activeTab === 'summary' && (
@@ -187,6 +194,10 @@ export default function Home() {
 
           {activeTab === 'calc' && (
             <AdjustmentCalculator allData={data} />
+          )}
+
+          {activeTab === 'interest' && (
+            <InterestFineCalculator allData={data} />
           )}
         </div>
       </div>
