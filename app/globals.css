@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
+/* ─── Light theme (default) ─── */
 :root {
-  --background: #fdfdfd;
+  --background: #eef1f7;
   --foreground: #051B40;
   --card: #ffffff;
   --card-foreground: #051B40;
@@ -11,6 +12,9 @@
   --accent: #f1f5f9;
   --accent-foreground: #051B40;
   --border: #e2e8f0;
+
+  /* Chart grid */
+  --chart-grid: #f1f5f9;
 }
 
 @theme {
@@ -24,13 +28,14 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: 'Inter', sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  background: #ffffff;
+  border: 1px solid #e8ecf4;
+  box-shadow: 0 2px 16px 0 rgba(5, 27, 64, 0.08);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .gradient-text {
@@ -38,4 +43,178 @@ body {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* ─── Dark theme overrides ─── */
+[data-theme="dark"] {
+  --background: #0b0d14;
+  --foreground: #eaf0ff;
+  --card: #12151f;
+  --border: #1e2333;
+  --chart-grid: #1e2333;
+}
+
+[data-theme="dark"] body {
+  background-color: #0b0d14;
+  color: #eaf0ff;
+}
+
+[data-theme="dark"] .glass-card {
+  background: #12151f !important;
+  border-color: #1e2333 !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ── Backgrounds ── */
+[data-theme="dark"] .bg-white {
+  background-color: #12151f !important;
+}
+
+[data-theme="dark"] .bg-slate-50 {
+  background-color: #0e1018 !important;
+}
+
+[data-theme="dark"] .bg-slate-100 {
+  background-color: #1a1e2a !important;
+}
+
+[data-theme="dark"] .bg-blue-50 {
+  background-color: rgba(0, 103, 180, 0.12) !important;
+}
+
+[data-theme="dark"] .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+[data-theme="dark"] .bg-rose-50 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+/* ── Text colors ── */
+[data-theme="dark"] .text-slate-800 {
+  color: #eaf0ff !important;
+}
+
+[data-theme="dark"] .text-slate-700 {
+  color: #c8d0e7 !important;
+}
+
+[data-theme="dark"] .text-slate-600 {
+  color: #8a95b0 !important;
+}
+
+[data-theme="dark"] .text-slate-500 {
+  color: #6b7a99 !important;
+}
+
+[data-theme="dark"] .text-slate-400 {
+  color: #49546e !important;
+}
+
+[data-theme="dark"] .text-slate-300 {
+  color: #2a3248 !important;
+}
+
+[data-theme="dark"] .text-\[\#051B40\] {
+  color: #eaf0ff !important;
+}
+
+[data-theme="dark"] .text-\[\#1a4d55\] {
+  color: #92cbd6 !important;
+}
+
+[data-theme="dark"] .text-slate-900 {
+  color: #eaf0ff !important;
+}
+
+[data-theme="dark"] .text-slate-800 {
+  color: #d1d9e9 !important;
+}
+
+/* ── Borders ── */
+[data-theme="dark"] .border-slate-200 {
+  border-color: #1e2333 !important;
+}
+
+[data-theme="dark"] .border-slate-100 {
+  border-color: #181c28 !important;
+}
+
+[data-theme="dark"] .border-slate-50 {
+  border-color: #13161e !important;
+}
+
+[data-theme="dark"] .divide-slate-50>*+* {
+  border-color: #181c28 !important;
+}
+
+[data-theme="dark"] .divide-y>*+* {
+  border-color: #1e2333 !important;
+}
+
+/* ── Hover backgrounds ── */
+[data-theme="dark"] .hover\:bg-blue-50:hover {
+  background-color: #181c28 !important;
+}
+
+[data-theme="dark"] .hover\:bg-slate-50:hover {
+  background-color: #181c28 !important;
+}
+
+[data-theme="dark"] .hover\:bg-slate-100:hover {
+  background-color: #1e2333 !important;
+}
+
+/* ── Page backgrounds (hardcoded Tailwind arbitrary values) ── */
+[data-theme="dark"] .bg-\[\#fdfdfd\] {
+  background-color: #0b0d14 !important;
+}
+
+[data-theme="dark"] .bg-\[\#f8fafc\] {
+  background-color: #13161e !important;
+}
+
+/* ── Ring offset color on selected card ── */
+[data-theme="dark"] .ring-offset-4 {
+  --tw-ring-offset-color: #0b0d14 !important;
+}
+
+/* ── Inputs & selects ── */
+[data-theme="dark"] input,
+[data-theme="dark"] select {
+  background-color: #0e1018 !important;
+  color: #eaf0ff !important;
+  border-color: #1e2333 !important;
+}
+
+/* ── Tab bar (inner bg-white pill) ── */
+[data-theme="dark"] .bg-white.p-1.rounded-full {
+  background-color: #12151f !important;
+  border-color: #1e2333 !important;
+}
+
+/* ── Calculator result panel ── */
+[data-theme="dark"] .bg-slate-50.rounded-3xl {
+  background-color: #0e1018 !important;
+}
+
+/* ── Tabs inactive hover label ── */
+[data-theme="dark"] .hover\:bg-slate-50 {
+  background-color: transparent !important;
+}
+
+/* ── Scrollbar ── */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #0b0d14;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #2a3248;
+}
+
+/* Smooth transition on theme toggle */
+*,
+*::before,
+*::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
 }

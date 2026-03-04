@@ -35,7 +35,7 @@ export default function ChartSection({ data, name, title, dataKey = "value", col
                             <stop offset="95%" stopColor={color} stopOpacity={0} />
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
                     <XAxis
                         dataKey="date"
                         tickFormatter={(str) => {

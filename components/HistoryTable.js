@@ -105,16 +105,16 @@ export default function HistoryTable({ data, name }) {
                                 <td className="p-3 text-[#051B40] font-bold border-r border-slate-200">
                                     {new Date(item.date + 'T12:00:00Z').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
                                 </td>
-                                <td className="p-3 text-slate-900 text-center border-r border-slate-200 font-medium">
+                                <td className="p-3 text-slate-800 text-center border-r border-slate-200 font-medium">
                                     {item.value.toFixed(2)}
                                 </td>
-                                <td className="p-3 text-slate-900 text-center border-r border-slate-200">
+                                <td className="p-3 text-slate-700 text-center border-r border-slate-200">
                                     {item.ytd.toFixed(4)}
                                 </td>
                                 <td className="p-3 text-[#1a4d55] text-center border-r border-slate-200 font-bold">
                                     {item.l12m ? item.l12m.toFixed(4) : '-'}
                                 </td>
-                                <td className="p-3 text-slate-800 text-right font-mono">
+                                <td className="p-3 text-slate-600 text-right font-mono">
                                     {item.indexNumber.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}
                                 </td>
                             </tr>

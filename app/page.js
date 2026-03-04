@@ -5,13 +5,15 @@ import IndicatorCard from '@/components/IndicatorCard';
 import ChartSection from '@/components/ChartSection';
 import HistoryTable from '@/components/HistoryTable';
 import AdjustmentCalculator from '@/components/AdjustmentCalculator';
-import { RefreshCw, BarChart4, Table as TableIcon, Calculator } from 'lucide-react';
+import { RefreshCw, BarChart4, Table as TableIcon, Calculator, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/lib/ThemeContext';
 
 export default function Home() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('summary');
   const [selectedIndex, setSelectedIndex] = useState('IPCA');
+  const { isDark, toggle } = useTheme();
 
   const fetchData = async () => {
     setLoading(true);
@@ -88,8 +90,22 @@ export default function Home() {
             </div>
             <p className="text-blue-200 font-medium">Indicadores Monitorados - Atualização Automática</p>
           </div>
-          <div className="text-blue-300 text-xs font-bold uppercase tracking-widest bg-blue-900/40 px-4 py-2 rounded-full border border-blue-700/50">
-            Sincronizado com Banco Central
+          <div className="flex items-center gap-3">
+            <div className="text-blue-300 text-xs font-bold uppercase tracking-widest bg-blue-900/40 px-4 py-2 rounded-full border border-blue-700/50">
+              Sincronizado com Banco Central
+            </div>
+            <button
+              onClick={toggle}
+              title={isDark ? 'Modo claro' : 'Modo escuro'}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+              style={{
+                background: isDark ? 'rgba(234,192,0,0.15)' : 'rgba(255,255,255,0.12)',
+                border: isDark ? '1px solid rgba(234,192,0,0.4)' : '1px solid rgba(255,255,255,0.2)',
+                color: isDark ? '#f5c518' : '#bfdbfe',
+              }}
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
           </div>
         </div>
       </div>
@@ -145,7 +161,7 @@ export default function Home() {
                 <ChartSection
                   data={data?.history[selectedIndex]}
                   name={selectedIndex}
-                  title="Variação Mensal (%) - 24 meses"
+                  title="Variação Mensal 24 meses(%)"
                   dataKey="value"
                   color="#2563eb"
                 />
