@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Calculator, TrendingUp, AlertCircle, Download, FileText, Printer } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import ExportPDFButton from './ExportPDFButton';
 
 export default function AdjustmentCalculator({ allData }) {
   const [indexName, setIndexName] = useState('IGP-M');
@@ -202,77 +203,6 @@ export default function AdjustmentCalculator({ allData }) {
     return val.toFixed(4) + '%';
   };
 
-  const PrintReport = () => {
-    if (!result) return null;
-    return (
-      <div className="hidden print:block w-full bg-white text-black printable-content font-sans" style={{ color: 'black', backgroundColor: 'white' }}>
-        <div className="border-b-2 border-black pb-4 mb-6">
-          <h1 className="text-2xl font-bold uppercase tracking-tight">Portal Econômico</h1>
-          <p className="text-sm font-bold mt-1">Relatório de Correção Monetária - {result.indexName}</p>
-          <p className="text-[10px] mt-1">Data de emissão: {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}</p>
-        </div>
-
-        <div className="border border-slate-300 p-4 mb-6 rounded-lg space-y-2">
-          <div className="flex justify-between border-b border-slate-100 pb-2">
-            <span className="text-[10px] font-bold uppercase text-slate-500">Período Selecionado:</span>
-            <span className="text-xs font-bold">{result.startDate} até {result.endDate}</span>
-          </div>
-          <div className="flex justify-between border-b border-slate-100 pb-2">
-            <span className="text-[10px] font-bold uppercase text-slate-500">Valor Nominal Original:</span>
-            <span className="text-xs font-bold">{formatCurrency(result.initialValue)}</span>
-          </div>
-          <div className="flex justify-between border-b border-slate-100 pb-2">
-            <span className="text-[10px] font-bold uppercase text-slate-500">Índice de Correção:</span>
-            <span className="text-xs font-bold">{result.indexName}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-[10px] font-bold uppercase text-slate-500">Regra de Reajuste:</span>
-            <span className="text-xs font-bold">
-              {result.positiveOnlyActive ? 'Apenas Variações Positivas (Congelar no Negativo)' : 'Variação Real (Positiva e Negativa)'}
-            </span>
-          </div>
-        </div>
-
-        <div className="border-4 border-black p-6 mb-8 text-center">
-          <p className="text-xs font-bold uppercase mb-2">Valor Atualizado Final</p>
-          <p className="text-4xl font-black mb-2">{formatCurrency(result.correctedValue)}</p>
-          <p className="text-sm font-bold text-slate-600">Variação Acumulada no Período: +{formatPercent(result.totalPercentage)}</p>
-        </div>
-
-        <div className="mb-4">
-          <h3 className="text-xs font-bold uppercase mb-3 underline">Detalhamento dos Reajustes Anuais</h3>
-          <table className="w-full text-left border-collapse border border-slate-300">
-            <thead>
-              <tr className="bg-slate-50" style={{ backgroundColor: '#f8fafc' }}>
-                <th className="border border-slate-300 p-2 text-[10px] uppercase font-bold">Período</th>
-                <th className="border border-slate-300 p-2 text-[10px] uppercase font-bold">Var. Real</th>
-                <th className="border border-slate-300 p-2 text-[10px] uppercase font-bold">Var. Aplicada</th>
-                <th className="border border-slate-300 p-2 text-[10px] uppercase font-bold text-right">Observação</th>
-              </tr>
-            </thead>
-            <tbody>
-              {result.details.map((d, i) => (
-                <tr key={i}>
-                  <td className="border border-slate-300 p-2 text-xs">{d.period}</td>
-                  <td className="border border-slate-300 p-2 text-xs">{formatPercent(d.variation)}</td>
-                  <td className="border border-slate-300 p-2 text-xs font-bold">
-                    {result.positiveOnlyActive && d.isNegative ? '0,0000%' : formatPercent(d.applied)}
-                  </td>
-                  <td className="border border-slate-300 p-2 text-right text-[10px]">
-                    {result.positiveOnlyActive && d.isNegative ? 'Deflação Congelada (0%)' : '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-8 text-[9px] text-slate-400 italic">
-          * Este é um documento informativo gerado pelo sistema Portal Econômico.
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700">
@@ -438,6 +368,7 @@ export default function AdjustmentCalculator({ allData }) {
                   <div className="flex flex-wrap gap-2 justify-center pt-2">
                     <button onClick={() => exportToExcel('xlsx')} className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-black transition-all shadow-md"><Download size={14} /> EXCEL</button>
                     <button onClick={() => exportToExcel('csv')} className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-black transition-all shadow-md"><FileText size={14} /> CSV</button>
+                    <ExportPDFButton calculateData={result} />
                   </div>
                 </div>
               )}
@@ -446,7 +377,7 @@ export default function AdjustmentCalculator({ allData }) {
         </div>
       </div>
 
-      <div className="hidden print-printable"><PrintReport /></div>
+      <div className="hidden print-printable"></div>
       <p className="mt-8 text-center text-slate-400 text-xs font-medium max-w-2xl mx-auto leading-relaxed print-hidden">
         * Os cálculos realizados nesta ferramenta são informativos e baseados em dados históricos. Variações extremamente recentes podem estar sujeitas a revisão pelos órgãos competentes.
       </p>

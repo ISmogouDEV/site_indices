@@ -9,9 +9,11 @@ import {
     AlertCircle,
     FileText,
     Download,
-    History
+    History,
+    FileDown
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import ExportInterestPDFButton from './ExportInterestPDFButton';
 
 export default function InterestFineCalculator({ allData }) {
     const [installments, setInstallments] = useState([
@@ -488,12 +490,15 @@ export default function InterestFineCalculator({ allData }) {
                                 <FileText size={20} className="text-[#0067B4]" />
                                 Memória de Cálculo Detalhada
                             </div>
-                            <button
-                                onClick={exportToExcel}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-emerald-100 active:scale-95"
-                            >
-                                <Download size={16} /> EXPORTAR EXCEL
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={exportToExcel}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg shadow-emerald-100 active:scale-95"
+                                >
+                                    <Download size={16} /> EXPORTAR EXCEL
+                                </button>
+                                <ExportInterestPDFButton results={results} settings={settings} />
+                            </div>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
