@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { checkAndSync } from '@/lib/sync-utils';
 
-export async function GET() {
+export async function GET(request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const forceSync = searchParams.get('sync') === 'true';
+
         // Step 1: Pre-fetch data to check if DB is empty
         const { rows: data } = await sql`
             SELECT name, date::text as date, value 
@@ -12,17 +15,29 @@ export async function GET() {
         `;
 
         // Step 2: Adaptive Sync
-        if (data.length === 0) {
-            // DATABASE EMPTY: Block and wait for sync
-            console.log("[API] Database empty, blocking for sync...");
-            await checkAndSync();
-            return NextResponse.json({
-                message: "Database is being populated. Please refresh in 20 seconds.",
-                status: "syncing"
-            });
+        if (data.length === 0 || forceSync) {
+            // BLOCKING SYNC: When database is empty or explicitly requested
+            console.log(forceSync ? "[API] Forced sync requested..." : "[API] Database empty, blocking for sync...");
+            await checkAndSync(forceSync);
+
+            // Re-fetch data after sync if it was blocking
+            const { rows: refreshedData } = await sql`
+                SELECT name, date::text as date, value 
+                FROM indicators 
+                ORDER BY date ASC
+            `;
+
+            if (refreshedData.length === 0) {
+                return NextResponse.json({
+                    message: "Database is being populated. Please refresh in 20 seconds.",
+                    status: "syncing"
+                });
+            }
+            // Use refreshed data for processing below
+            data.splice(0, data.length, ...refreshedData);
         } else {
-            // DATABASE HAS DATA: Trigger sync in BACKGROUND (non-blocking)
-            console.log("[API] Database has data, triggering background sync if needed...");
+            // BACKGROUND SYNC: non-blocking
+            console.log("[API] Triggering background sync if needed...");
             checkAndSync().catch(err => console.error("[API] Background sync error:", err));
         }
 
@@ -81,14 +96,14 @@ export async function GET() {
         }, {});
 
         // Step 4: Return with Caching Headers
-        // s-maxage=3600: Shared cache for 1 hour
+        // s-maxage=60: Shared cache for 1 minute (reduced for better sync responsiveness)
         // stale-while-revalidate=86400: Serve stale for up to 24h while updating in background
         return NextResponse.json({
             latest,
             history: processed
         }, {
             headers: {
-                'Cache-Control': 's-maxage=3600, stale-while-revalidate=86400',
+                'Cache-Control': 's-maxage=60, stale-while-revalidate=86400',
             }
         });
 
