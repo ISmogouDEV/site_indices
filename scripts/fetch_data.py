@@ -6,13 +6,10 @@ import os
 
 # Codes from SGS (Banco Central)
 INDICATORS = {
-    'SELIC': 11,
-    'CDI': 12,
     'IPCA': 433,
     'IGP-M': 189,
     'IGP-DI': 190,
-    'IPC-FIPE': 193,
-    'TR': 226 # Found TR code 226 for monthly TR
+    'IPC-FIPE': 193
 }
 
 DB_PATH = 'data/database.sqlite'
