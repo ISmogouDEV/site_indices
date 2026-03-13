@@ -36,9 +36,18 @@ export async function GET(request) {
             // Use refreshed data for processing below
             data.splice(0, data.length, ...refreshedData);
         } else {
-            // BACKGROUND SYNC: non-blocking
-            console.log("[API] Triggering background sync if needed...");
-            checkAndSync().catch(err => console.error("[API] Background sync error:", err));
+            // SYNC IF NEEDED: now blocking to ensure revalidation picks up new data
+            console.log("[API] Checking for sync...");
+            await checkAndSync();
+            
+            // Re-fetch data if sync actually happened and updated the DB
+            // (checkAndSync returns true if it performed a sync)
+            const { rows: updatedData } = await sql`
+                SELECT name, date::text as date, value 
+                FROM indicators 
+                ORDER BY date ASC
+            `;
+            data.splice(0, data.length, ...updatedData);
         }
 
         // Step 3: Process the data
@@ -96,14 +105,14 @@ export async function GET(request) {
         }, {});
 
         // Step 4: Return with Caching Headers
-        // s-maxage=60: Shared cache for 1 minute (reduced for better sync responsiveness)
-        // stale-while-revalidate=86400: Serve stale for up to 24h while updating in background
+        // s-maxage=60: Shared cache for 1 minute
+        // stale-while-revalidate=3600: Serve stale for up to 1 hour (reduced for faster recovery)
         return NextResponse.json({
             latest,
             history: processed
         }, {
             headers: {
-                'Cache-Control': 's-maxage=60, stale-while-revalidate=86400',
+                'Cache-Control': 's-maxage=60, stale-while-revalidate=3600',
             }
         });
 
