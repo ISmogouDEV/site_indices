@@ -36,18 +36,10 @@ export async function GET(request) {
             // Use refreshed data for processing below
             data.splice(0, data.length, ...refreshedData);
         } else {
-            // SYNC IF NEEDED: now blocking to ensure revalidation picks up new data
-            console.log("[API] Checking for sync...");
-            await checkAndSync();
-            
-            // Re-fetch data if sync actually happened and updated the DB
-            // (checkAndSync returns true if it performed a sync)
-            const { rows: updatedData } = await sql`
-                SELECT name, date::text as date, value 
-                FROM indicators 
-                ORDER BY date ASC
-            `;
-            data.splice(0, data.length, ...updatedData);
+            // NON-BLOCKING SYNC: Trigger update in background and return current data
+            // This makes the response nearly instant
+            console.log("[API] Triggering background sync check...");
+            checkAndSync().catch(err => console.error("[SYNC ERROR]", err));
         }
 
         // Step 3: Process the data

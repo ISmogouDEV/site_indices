@@ -19,7 +19,7 @@ export default function IndicatorCard({ name, value, date, l12m, unit = '%' }) {
                 <span className="text-xs font-bold text-slate-400 uppercase mb-1">Acumulado 12 Meses</span>
                 <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-black text-[#0067B4] leading-none">
-                        {l12m ? l12m.toFixed(2) : '0.00'}
+                        {l12m ? l12m.toFixed(4) : '0.0000'}
                     </span>
                     <span className="text-xl font-bold text-[#0067B4]">{unit}</span>
                 </div>
