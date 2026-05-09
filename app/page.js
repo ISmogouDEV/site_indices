@@ -19,7 +19,9 @@ export default function Home() {
   const fetchData = async (force = false) => {
     setLoading(true);
     try {
-      const url = force ? '/api/indicators?sync=true' : '/api/indicators';
+      const url = force 
+        ? `/api/indicators?sync=true&t=${Date.now()}` 
+        : '/api/indicators';
       const res = await fetch(url);
       const json = await res.json();
       setData(json);

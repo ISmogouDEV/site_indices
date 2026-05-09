@@ -107,13 +107,17 @@ export async function GET(request) {
 
         // Step 4: Return with Caching Headers
         // s-maxage=60: Shared cache for 1 minute
-        // stale-while-revalidate=3600: Serve stale for up to 1 hour (reduced for faster recovery)
+        // stale-while-revalidate=300: Serve stale for only 5 minutes (was 1 hour)
+        const cacheControl = forceSync 
+            ? 'no-store, no-cache, must-revalidate, proxy-revalidate' 
+            : 's-maxage=60, stale-while-revalidate=300';
+
         return NextResponse.json({
             latest,
             history: processed
         }, {
             headers: {
-                'Cache-Control': 's-maxage=60, stale-while-revalidate=3600',
+                'Cache-Control': cacheControl,
             }
         });
 
