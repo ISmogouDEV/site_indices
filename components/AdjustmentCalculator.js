@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Calculator, TrendingUp, AlertCircle, Download, FileText, Printer } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import ExportPDFButton from './ExportPDFButton';
 
 export default function AdjustmentCalculator({ allData }) {
@@ -148,21 +148,27 @@ export default function AdjustmentCalculator({ allData }) {
     });
   };
 
-  const exportToExcel = (format = 'xlsx') => {
+  const exportToExcel = async (format = 'xlsx') => {
     if (!result) return;
 
-    const data = [
-      ['Relatório de Correção Monetária'],
-      ['Índice', result.indexName],
-      ['Período', `${result.startDate} a ${result.endDate}`],
-      ['Valor Original', result.initialValue],
-      ['Apenas Variação Positiva', result.positiveOnlyActive ? 'Sim' : 'Não'],
-      [],
-      ['Período', 'Variação Real (%)', 'Variação Aplicada (%)', 'Valor Anterior', 'Novo Valor', 'Observação']
-    ];
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Reajuste');
 
+    // Add metadata
+    worksheet.addRow(['Relatório de Correção Monetária']);
+    worksheet.addRow(['Índice', result.indexName]);
+    worksheet.addRow(['Período', `${result.startDate} a ${result.endDate}`]);
+    worksheet.addRow(['Valor Original', result.initialValue]);
+    worksheet.addRow(['Apenas Variação Positiva', result.positiveOnlyActive ? 'Sim' : 'Não']);
+    worksheet.addRow([]);
+
+    // Add headers
+    const headerRow = worksheet.addRow(['Período', 'Variação Real (%)', 'Variação Aplicada (%)', 'Valor Anterior', 'Novo Valor', 'Observação']);
+    headerRow.font = { bold: true };
+
+    // Add data rows
     result.details.forEach(d => {
-      data.push([
+      worksheet.addRow([
         d.period,
         d.variation.toFixed(4),
         d.applied.toFixed(4),
@@ -172,22 +178,21 @@ export default function AdjustmentCalculator({ allData }) {
       ]);
     });
 
-    data.push([]);
-    data.push(['RESUMO FINAL']);
-    data.push(['Valor Corrigido', result.correctedValue.toFixed(2)]);
-    data.push(['Variação Total (%)', result.totalPercentage.toFixed(4)]);
-    data.push(['Total de Meses', result.totalMonths]);
-    data.push(['Método', 'Reajuste Anual (blocos de 12 meses)']);
+    worksheet.addRow([]);
+    worksheet.addRow(['RESUMO FINAL']).font = { bold: true };
+    worksheet.addRow(['Valor Corrigido', result.correctedValue.toFixed(2)]);
+    worksheet.addRow(['Variação Total (%)', result.totalPercentage.toFixed(4)]);
+    worksheet.addRow(['Total de Meses', result.totalMonths]);
+    worksheet.addRow(['Método', 'Reajuste Anual (blocos de 12 meses)']);
 
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Reajuste');
-
-    if (format === 'csv') {
-      XLSX.writeFile(wb, `reajuste_${result.indexName}_${result.startDate.replace('/', '-')}.csv`, { bookType: 'csv' });
-    } else {
-      XLSX.writeFile(wb, `reajuste_${result.indexName}_${result.startDate.replace('/', '-')}.xlsx`);
-    }
+    // Generate file
+    const buffer = await (format === 'csv' ? workbook.csv.writeBuffer() : workbook.xlsx.writeBuffer());
+    const blob = new Blob([buffer], { type: format === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `reajuste_${result.indexName}_${result.startDate.replace('/', '-')}.${format}`;
+    link.click();
+    URL.revokeObjectURL(link.href);
   };
 
   const handlePrint = () => {
@@ -206,15 +211,6 @@ export default function AdjustmentCalculator({ allData }) {
 
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700">
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @media print {
-          html, body { height: auto !important; overflow: visible !important; background: white !important; color: black !important; }
-          header, nav, footer, #indicator-dashboard-global-header, .print-hidden, button, select, input { display: none !important; }
-          .print\\:block { display: block !important; }
-          .printable-content { display: block !important; width: 100% !important; margin: 0 !important; padding: 20px !important; }
-        }
-      `}} />
 
       <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden print-hidden">
         <div className="bg-[#051B40] p-8 text-white flex items-center gap-4">

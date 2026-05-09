@@ -16,8 +16,23 @@ export async function GET(request) {
 
         // Step 2: Adaptive Sync
         if (data.length === 0 || forceSync) {
+            // RISCO-01: Authenticate forced sync
+            if (forceSync) {
+                const token = searchParams.get('token');
+                const serverToken = process.env.SYNC_TOKEN;
+                
+                if (!serverToken) {
+                    console.error("[SECURITY] SYNC_TOKEN not configured in environment variables.");
+                    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+                }
+
+                if (token !== serverToken) {
+                    return NextResponse.json({ error: 'Unauthorized sync request' }, { status: 401 });
+                }
+            }
+
             // BLOCKING SYNC: When database is empty or explicitly requested
-            console.log(forceSync ? "[API] Forced sync requested..." : "[API] Database empty, blocking for sync...");
+            console.log(forceSync ? "[API] Forced sync authorized..." : "[API] Database empty, blocking for sync...");
             await checkAndSync(forceSync);
 
             // Re-fetch data after sync
@@ -38,15 +53,17 @@ export async function GET(request) {
             data.push(...refreshedData);
         } else {
             // NON-BLOCKING SYNC: Trigger update in background
-            // We use a self-invoking async function to avoid blocking the main thread
-            // while still allowing the runtime a chance to process it.
             (async () => {
                 try {
-                    console.log("[API] Background sync check started...");
                     const updated = await checkAndSync();
                     if (updated) console.log("[API] Background sync found and saved new data.");
                 } catch (err) {
-                    console.error("[SYNC ERROR]", err);
+                    // RISCO-04: Sanitize production logs
+                    if (process.env.NODE_ENV === 'production') {
+                        console.error("[SYNC ERROR]", err.message);
+                    } else {
+                        console.error("[SYNC ERROR]", err);
+                    }
                 }
             })();
         }
@@ -105,24 +122,34 @@ export async function GET(request) {
             return acc;
         }, {});
 
-        // Step 4: Return with Caching Headers
-        // s-maxage=60: Shared cache for 1 minute
-        // stale-while-revalidate=300: Serve stale for only 5 minutes (was 1 hour)
+        // Step 4: Return with Caching & Security Headers
         const cacheControl = forceSync 
             ? 'no-store, no-cache, must-revalidate, proxy-revalidate' 
             : 's-maxage=60, stale-while-revalidate=300';
 
+        // RISCO-07: Explicit CORS (Restrictive in production)
+        const origin = request.headers.get('origin');
+        const isAllowedOrigin = process.env.NODE_ENV === 'development' || (origin && origin.includes('vercel.app'));
+        
+        const headers = {
+            'Cache-Control': cacheControl,
+            'Access-Control-Allow-Origin': isAllowedOrigin ? origin : 'null',
+            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'X-Content-Type-Options': 'nosniff'
+        };
+
         return NextResponse.json({
             latest,
             history: processed
-        }, {
-            headers: {
-                'Cache-Control': cacheControl,
-            }
-        });
+        }, { headers });
 
     } catch (error) {
-        console.error('Database error:', error);
+        // RISCO-04: Sanitize production logs
+        if (process.env.NODE_ENV === 'production') {
+            console.error('Database error:', error.message);
+        } else {
+            console.error('Database error:', error);
+        }
         return NextResponse.json({ error: 'Failed to fetch indicators' }, { status: 500 });
     }
 }

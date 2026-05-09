@@ -10,25 +10,25 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@vercel/postgres": "^0.10.0",
-    "clsx": "^2.1.1",
-    "framer-motion": "^12.34.3",
-    "jspdf": "^4.2.0",
-    "jspdf-autotable": "^5.0.7",
-    "lucide-react": "^0.575.0",
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "recharts": "^3.7.0",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7",
-    "tailwind-merge": "^3.5.0",
-    "xlsx": "^0.18.5"
+    "@vercel/postgres": "0.10.0",
+    "clsx": "2.1.1",
+    "framer-motion": "12.34.3",
+    "jspdf": "4.2.0",
+    "jspdf-autotable": "5.0.7",
+    "lucide-react": "0.575.0",
+    "next": "15.1.7",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "recharts": "3.7.0",
+    "sqlite": "5.1.1",
+    "sqlite3": "5.1.7",
+    "tailwind-merge": "3.5.0",
+    "exceljs": "4.4.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4"
+    "@tailwindcss/postcss": "4",
+    "eslint": "9",
+    "eslint-config-next": "15.1.7",
+    "tailwindcss": "4"
   }
 }

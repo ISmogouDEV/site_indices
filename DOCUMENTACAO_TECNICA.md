@@ -54,15 +54,30 @@ Um script independente que pode ser usado para popular o banco SQLite local rapi
 
 ---
 
-## 🛠️ Dicas para Manutenção
+---
 
-1. **Adicionar novo Índice**: 
-    - Adicione o código do SGS no objeto `INDICATORS` em `lib/sync-utils.js`.
-    - Adicione o nome no array `indices` em `app/page.js`.
-2. **Alterar Lógica de Cálculo**: 
-    - Quase tudo relacionado a fórmulas matemáticas de acumulados está no `app/api/indicators/route.js`.
-3. **Problemas de Conexão**: 
-    - Verifique sempre o `lib/db.js`. Ele é quem gerencia o "túnel" para o banco de dados.
+## 🔒 6. Segurança e Robustez
+**Implementado em: Maio/2026**
+
+### Camada de Autenticação
+O endpoint `/api/indicators` possui uma trava de segurança para operações de escrita.
+- **Leitura**: Livre.
+- **Sincronização (`?sync=true`)**: Exige o parâmetro `&token=${process.env.SYNC_TOKEN}`.
+
+### Rate Limiting
+O arquivo `middleware.js` controla o tráfego na API.
+- **Limite**: 30 requisições por minuto por IP.
+- **Objetivo**: Proteção contra ataques de DoS e controle de custos na Vercel/Neon.
+
+### Sanitização e Validação
+- **Logs**: Stack traces são omitidos em `NODE_ENV=production`.
+- **Dados Externos**: Datas vindas da API do Banco Central são validadas via Regex (`DD/MM/YYYY`) antes do processamento.
 
 ---
-*Documentação gerada para auxílio no Portal Econômico - 2026*
+
+## 🛠️ Dicas para Manutenção
+...
+4. **Variáveis de Ambiente**: Certifique-se de configurar `SYNC_TOKEN` no painel da Vercel para que o botão de sincronizar funcione em produção.
+
+---
+*Documentação atualizada - Foco em Segurança e Estabilidade - 2026*

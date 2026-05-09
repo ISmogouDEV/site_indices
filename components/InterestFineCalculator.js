@@ -12,7 +12,7 @@ import {
     History,
     FileDown
 } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import ExportInterestPDFButton from './ExportInterestPDFButton';
 
 export default function InterestFineCalculator({ allData }) {
@@ -222,33 +222,50 @@ export default function InterestFineCalculator({ allData }) {
         });
     };
 
-    const exportToExcel = () => {
+    const exportToExcel = async () => {
         if (!results) return;
 
-        const data = results.items.map(item => ({
-            'Vencimento': item.month,
-            'Valor Original': item.principal,
-            'Correção': item.correction,
-            'Valor Corrigido': item.corrected,
-            'Juros': item.interest,
-            'Multa': item.fine,
-            'Total': item.subTotal
-        }));
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Memória de Cálculo');
 
-        data.push({
-            'Vencimento': 'TOTAIS',
-            'Valor Original': results.totalPrincipal,
-            'Correção': results.totalCorrection,
-            'Valor Corrigido': results.totalPrincipal + results.totalCorrection,
-            'Juros': results.totalInterest,
-            'Multa': results.totalFine,
-            'Total': results.grandTotal
+        // Add headers
+        const headers = ['Vencimento', 'Valor Original', 'Correção', 'Valor Corrigido', 'Juros', 'Multa', 'Total'];
+        const headerRow = worksheet.addRow(headers);
+        headerRow.font = { bold: true };
+
+        // Add items
+        results.items.forEach(item => {
+            worksheet.addRow([
+                item.month,
+                item.principal,
+                item.correction,
+                item.corrected,
+                item.interest,
+                item.fine,
+                item.subTotal
+            ]);
         });
 
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Memória de Cálculo");
-        XLSX.writeFile(wb, `Calculo_Juros_Multa_${settings.index}.xlsx`);
+        // Add Totals
+        const totalRow = worksheet.addRow([
+            'TOTAIS',
+            results.totalPrincipal,
+            results.totalCorrection,
+            results.totalPrincipal + results.totalCorrection,
+            results.totalInterest,
+            results.totalFine,
+            results.grandTotal
+        ]);
+        totalRow.font = { bold: true };
+
+        // Generate file
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Calculo_Juros_Multa_${settings.index}.xlsx`;
+        link.click();
+        URL.revokeObjectURL(link.href);
     };
 
     return (

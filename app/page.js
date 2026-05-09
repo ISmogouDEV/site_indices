@@ -19,8 +19,9 @@ export default function Home() {
   const fetchData = async (force = false) => {
     setLoading(true);
     try {
+      const token = process.env.NEXT_PUBLIC_SYNC_TOKEN || 'pm_secret_sync_2026_safe';
       const url = force 
-        ? `/api/indicators?sync=true&t=${Date.now()}` 
+        ? `/api/indicators?sync=true&token=${token}&t=${Date.now()}` 
         : '/api/indicators';
       const res = await fetch(url);
       const json = await res.json();

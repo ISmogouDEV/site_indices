@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Download } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 export default function HistoryTable({ data, name }) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -22,11 +22,33 @@ export default function HistoryTable({ data, name }) {
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
     const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-    const exportToExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, name);
-        XLSX.writeFile(wb, `${name}_historico.xlsx`);
+    const exportToExcel = async () => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet(name);
+
+        // Add headers
+        const headers = ['Data', 'Valor (%)', 'YTD (%)', 'L12M (%)', 'Nº Índice'];
+        const headerRow = worksheet.addRow(headers);
+        headerRow.font = { bold: true };
+
+        // Add data
+        data.forEach(item => {
+            worksheet.addRow([
+                item.date,
+                item.value,
+                item.ytd,
+                item.l12m || '-',
+                item.indexNumber
+            ]);
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${name}_historico.xlsx`;
+        link.click();
+        URL.revokeObjectURL(link.href);
     };
 
     const exportToCSV = () => {

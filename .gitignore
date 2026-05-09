@@ -24,6 +24,20 @@
 .DS_Store
 *.pem
 
+# Database
+data/database.sqlite
+data/*.sqlite
+
+# Security & Temp
+RISCOS.md
+scratch/
+.env.local
+.env.production
+.env
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
 # debug
 npm-debug.log*
 yarn-debug.log*

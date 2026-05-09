@@ -2,15 +2,29 @@
 
 Dashboard moderno e automatizado para monitoramento dos principais índices de inflação brasileiros (IPCA, IGP-M, IGP-DI e IPC-FIPE), com histórico completo desde 1993.
 
-## 🚀 Funcionalidades
+## 🚀 Funcionalidades Principais
+- **Sincronização Automática**: Dados atualizados via API do Banco Central (SGS).
+- **Modo Economia**: Sincronização inteligente com trava de 4 horas para economia de recursos Neon/Vercel.
+- **Segurança**: Proteção contra abusos via Token e Rate Limiting.
+- **Multicalculadoras**: Reajuste anual, juros compostos e multa.
+- **Exportação**: Geração de relatórios em PDF e Excel.
 
-- **Dashboard em Tempo Real**: Visualização imediata dos últimos valores publicados pelo Banco Central (SGS).
-- **Gráficos de Tendência**:
-  - Variação Mensal (%) dos últimos 24 meses.
-  - Acumulado de 12 Meses (%) para análise de inflação anualizada.
-- **Planilha Histórica Profunda**: Acesso a dados desde **1993** (Plano Real), permitindo exportação para **Excel** e **CSV**.
-- **Sincronização Inteligente**: O sistema monitora atualizações do Banco Central automaticamente nos bastidores sem necessidade de intervenção manual.
-- **Performance Otimizada**: Utiliza *Edge Caching* (SWR) para carregamento instantâneo no Vercel.
+## 🛠️ Configuração de Ambiente
+Crie um arquivo `.env.local` na raiz do projeto com as seguintes chaves:
+
+```env
+# Segurança (Crie o seu segredo)
+SYNC_TOKEN=seu_token_secreto_aqui
+NEXT_PUBLIC_SYNC_TOKEN=seu_token_secreto_aqui
+
+# Banco de Dados (Neon/Postgres)
+POSTGRES_URL=postgres://...
+```
+
+## 🔒 Segurança & Performance
+- **Headers HTTP**: Proteção nativa contra Clickjacking e XSS.
+- **Rate Limit**: Limite de requisições por IP para proteção da infraestrutura.
+- **Background Sync**: Atualizações não-bloqueantes que garantem carregamento instantâneo.
 
 ## 🛠️ Tecnologias
 
