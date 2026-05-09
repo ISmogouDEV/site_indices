@@ -20,7 +20,7 @@ export async function GET(request) {
             console.log(forceSync ? "[API] Forced sync requested..." : "[API] Database empty, blocking for sync...");
             await checkAndSync(forceSync);
 
-            // Re-fetch data after sync if it was blocking
+            // Re-fetch data after sync
             const { rows: refreshedData } = await sql`
                 SELECT name, date::text as date, value 
                 FROM indicators 
@@ -33,13 +33,22 @@ export async function GET(request) {
                     status: "syncing"
                 });
             }
-            // Use refreshed data for processing below
-            data.splice(0, data.length, ...refreshedData);
+            // Update local data variable with refreshed results
+            data.length = 0;
+            data.push(...refreshedData);
         } else {
-            // NON-BLOCKING SYNC: Trigger update in background and return current data
-            // This makes the response nearly instant
-            console.log("[API] Triggering background sync check...");
-            checkAndSync().catch(err => console.error("[SYNC ERROR]", err));
+            // NON-BLOCKING SYNC: Trigger update in background
+            // We use a self-invoking async function to avoid blocking the main thread
+            // while still allowing the runtime a chance to process it.
+            (async () => {
+                try {
+                    console.log("[API] Background sync check started...");
+                    const updated = await checkAndSync();
+                    if (updated) console.log("[API] Background sync found and saved new data.");
+                } catch (err) {
+                    console.error("[SYNC ERROR]", err);
+                }
+            })();
         }
 
         // Step 3: Process the data

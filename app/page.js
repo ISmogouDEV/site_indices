@@ -16,10 +16,11 @@ export default function Home() {
   const [selectedIndex, setSelectedIndex] = useState('IPCA');
   const { isDark, toggle } = useTheme();
 
-  const fetchData = async () => {
+  const fetchData = async (force = false) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/indicators');
+      const url = force ? '/api/indicators?sync=true' : '/api/indicators';
+      const res = await fetch(url);
       const json = await res.json();
       setData(json);
     } catch (error) {
@@ -92,9 +93,17 @@ export default function Home() {
             <p className="text-blue-200 font-medium">Indicadores Monitorados - Atualização Automática</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="text-blue-300 text-xs font-bold uppercase tracking-widest bg-blue-900/40 px-4 py-2 rounded-full border border-blue-700/50">
+            <div className="text-blue-300 text-xs font-bold uppercase tracking-widest bg-blue-900/40 px-4 py-2 rounded-full border border-blue-700/50 flex items-center gap-2">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
               Sincronizado com Banco Central
             </div>
+            <button
+              onClick={() => fetchData(true)}
+              title="Forçar Atualização"
+              className="w-10 h-10 rounded-full bg-blue-600/20 border border-blue-400/30 flex items-center justify-center text-blue-200 hover:bg-blue-600/40 transition-all active:scale-90"
+            >
+              <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+            </button>
             <button
               onClick={toggle}
               title={isDark ? 'Modo claro' : 'Modo escuro'}
