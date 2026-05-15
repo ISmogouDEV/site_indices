@@ -19,17 +19,23 @@ export async function GET(request) {
             // RISCO-01: Authenticate forced sync
             if (forceSync) {
                 const token = searchParams.get('token');
-                const serverToken = process.env.SYNC_TOKEN;
+                const authHeader = request.headers.get('authorization');
+                const cronToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
                 
-                if (!serverToken) {
-                    console.error("[SECURITY] SYNC_TOKEN not configured in Vercel.");
-                    return NextResponse.json({ error: 'Erro de configuração no servidor (Token ausente)' }, { status: 500 });
+                const serverToken = process.env.SYNC_TOKEN;
+                const cronSecret = process.env.CRON_SECRET;
+                
+                if (!serverToken && !cronSecret) {
+                    console.error("[SECURITY] Neither SYNC_TOKEN nor CRON_SECRET configured in Vercel.");
+                    return NextResponse.json({ error: 'Erro de configuração: Servidor sem chaves de acesso.' }, { status: 500 });
                 }
 
-                if (token !== serverToken) {
-                    console.warn("[SECURITY] Unauthorized sync attempt with invalid token.");
+                const isAuthorized = (token && token === serverToken) || (cronToken && cronToken === cronSecret);
+
+                if (!isAuthorized) {
+                    console.warn("[SECURITY] Unauthorized sync attempt.");
                     return NextResponse.json({ 
-                        error: 'Token de sincronização inválido. Verifique as variáveis de ambiente NEXT_PUBLIC_SYNC_TOKEN e SYNC_TOKEN.',
+                        error: 'Acesso negado: Token inválido ou ausente.',
                         code: 'AUTH_ERROR'
                     }, { status: 401 });
                 }
