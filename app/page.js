@@ -19,7 +19,11 @@ export default function Home() {
   const fetchData = async (force = false) => {
     setLoading(true);
     try {
-      const token = process.env.NEXT_PUBLIC_SYNC_TOKEN || 'pm_secret_sync_2026_safe';
+      const token = process.env.NEXT_PUBLIC_SYNC_TOKEN;
+      if (!token && force) {
+        console.error('SYNC_TOKEN not found in environment');
+        return;
+      }
       const url = force 
         ? `/api/indicators?sync=true&token=${token}&t=${Date.now()}` 
         : '/api/indicators';

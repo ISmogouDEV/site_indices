@@ -19,12 +19,11 @@ export async function GET(request) {
             // RISCO-01: Authenticate forced sync
             if (forceSync) {
                 const token = searchParams.get('token');
-                const serverToken = process.env.SYNC_TOKEN || 'pm_secret_sync_2026_safe';
+                const serverToken = process.env.SYNC_TOKEN;
                 
                 if (!serverToken) {
-                    // This case is now technically impossible due to fallback, but kept for logical consistency
-                    console.error("[SECURITY] SYNC_TOKEN not configured and fallback missing.");
-                    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+                    console.error("[SECURITY] SYNC_TOKEN not configured in Vercel.");
+                    return NextResponse.json({ error: 'Erro de configuração no servidor (Token ausente)' }, { status: 500 });
                 }
 
                 if (token !== serverToken) {
