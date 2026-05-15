@@ -33,7 +33,12 @@ export default function IndicatorCard({ name, value, date, l12m, unit = '%' }) {
                 <div className="flex justify-between items-center text-[10px] text-slate-300 uppercase mt-2 font-bold tracking-widest">
                     <span>Atualização</span>
                     <span>
-                        {date ? new Date(date + 'T12:00:00Z').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : '-'}
+                        {(() => {
+                            if (!date) return '-';
+                            const d = new Date(date + 'T12:00:00Z');
+                            if (isNaN(d.getTime())) return date; // Return raw date if parsing fails
+                            return d.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+                        })()}
                     </span>
                 </div>
             </div>

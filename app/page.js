@@ -59,7 +59,7 @@ export default function Home() {
   }
 
   // Special loading state for first-time sync
-  if (data?.message && !data.latest) {
+  if (data?.message && !data?.latest) {
     return (
       <div className="min-h-screen bg-[#fdfdfd] flex items-center justify-center">
         <div className="flex flex-col items-center gap-6 max-w-md text-center p-8 bg-white rounded-3xl shadow-xl border border-blue-50">
@@ -75,6 +75,27 @@ export default function Home() {
             <div className="bg-blue-600 h-full animate-pulse w-3/4"></div>
           </div>
           <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Atualizando em instantes...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (data?.error) {
+    return (
+      <div className="min-h-screen bg-[#fdfdfd] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6 max-w-md text-center p-8 bg-white rounded-3xl shadow-xl border border-red-50">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+            <RefreshCw size={32} />
+          </div>
+          <h2 className="text-2xl font-black text-[#051B40]">Erro na Sincronização</h2>
+          <p className="text-slate-500 font-medium">{data.error}</p>
+          <button 
+            onClick={() => fetchData(true)}
+            className="px-6 py-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-all"
+          >
+            Tentar Novamente
+          </button>
         </div>
       </div>
     );
@@ -178,14 +199,14 @@ export default function Home() {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                 <ChartSection
-                  data={data?.history[selectedIndex]}
+                  data={data?.history?.[selectedIndex]}
                   name={selectedIndex}
                   title="Variação Mensal 24 meses(%)"
                   dataKey="value"
                   color="#2563eb"
                 />
                 <ChartSection
-                  data={data?.history[selectedIndex]}
+                  data={data?.history?.[selectedIndex]}
                   name={selectedIndex}
                   title="Acumulado 12 Meses (%)"
                   dataKey="l12m"
@@ -198,7 +219,7 @@ export default function Home() {
           {activeTab === 'table' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <HistoryTable
-                data={data?.history[selectedIndex]}
+                data={data?.history?.[selectedIndex]}
                 name={selectedIndex}
               />
             </div>

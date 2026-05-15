@@ -27,7 +27,11 @@ export async function GET(request) {
                 }
 
                 if (token !== serverToken) {
-                    return NextResponse.json({ error: 'Unauthorized sync request' }, { status: 401 });
+                    console.warn("[SECURITY] Unauthorized sync attempt with invalid token.");
+                    return NextResponse.json({ 
+                        error: 'Token de sincronização inválido. Verifique as variáveis de ambiente NEXT_PUBLIC_SYNC_TOKEN e SYNC_TOKEN.',
+                        code: 'AUTH_ERROR'
+                    }, { status: 401 });
                 }
             }
 
@@ -56,7 +60,11 @@ export async function GET(request) {
             (async () => {
                 try {
                     const updated = await checkAndSync();
-                    if (updated) console.log("[API] Background sync found and saved new data.");
+                    if (updated) {
+                        console.log("[API] Background sync: New data found and database updated.");
+                    } else {
+                        console.log("[API] Background sync: Data is already up to date.");
+                    }
                 } catch (err) {
                     // RISCO-04: Sanitize production logs
                     if (process.env.NODE_ENV === 'production') {
