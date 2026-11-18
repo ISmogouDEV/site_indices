@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { checkAndSync } from '@/lib/sync-utils';
 
+// Vercel: allow enough time for the Banco Central sync and per-row inserts
+export const maxDuration = 60;
+
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);

@@ -111,7 +111,6 @@ export default function Home() {
     <main className="min-h-screen bg-[#fdfdfd] pb-20">
       {/* Header */}
       <div className="bg-[#051B40] border-b border-[#0067B4] px-6 py-8 md:px-12 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#0067B4] opacity-10 rounded-full -mr-32 -mt-32"></div>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -121,7 +120,7 @@ export default function Home() {
             <p className="text-blue-200 font-medium">Indicadores Monitorados - Atualização Automática</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="text-blue-300 text-xs font-bold uppercase tracking-widest bg-blue-900/40 px-4 py-2 rounded-full border border-blue-700/50 flex items-center gap-2">
+            <div className="text-blue-200 text-sm font-medium bg-blue-900/40 px-4 py-2 rounded-full border border-blue-700/50 flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
               Sincronizado com Banco Central
             </div>
@@ -175,25 +174,25 @@ export default function Home() {
           <div className="flex flex-wrap items-center gap-4 mb-8 bg-white p-1 rounded-full w-fit border border-slate-200 shadow-sm">
             <button
               onClick={() => setActiveTab('summary')}
-              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-black uppercase text-[10px] md:text-xs tracking-widest ${activeTab === 'summary' ? 'bg-[#0067B4] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
+              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-semibold text-sm ${activeTab === 'summary' ? 'bg-[#0067B4] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
             >
               <BarChart4 size={18} /> Gráfico Trend
             </button>
             <button
               onClick={() => setActiveTab('table')}
-              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-black uppercase text-[10px] md:text-xs tracking-widest ${activeTab === 'table' ? 'bg-[#0067B4] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
+              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-semibold text-sm ${activeTab === 'table' ? 'bg-[#0067B4] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
             >
               <TableIcon size={18} /> Planilha Histórica
             </button>
             <button
               onClick={() => setActiveTab('calc')}
-              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-black uppercase text-[10px] md:text-xs tracking-widest ${activeTab === 'calc' ? 'bg-[#E30613] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
+              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-semibold text-sm ${activeTab === 'calc' ? 'bg-[#E30613] text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
             >
               <Calculator size={18} /> Calculadora de Reajuste
             </button>
             <button
               onClick={() => setActiveTab('interest')}
-              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-black uppercase text-[10px] md:text-xs tracking-widest ${activeTab === 'interest' ? 'bg-emerald-600 text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
+              className={`flex items-center gap-2 px-6 md:px-8 py-3 rounded-full transition-all font-semibold text-sm ${activeTab === 'interest' ? 'bg-emerald-600 text-white shadow-lg' : 'text-[#051B40] hover:bg-slate-50'}`}
             >
               <TrendingUp size={18} /> Juros e Multa
             </button>

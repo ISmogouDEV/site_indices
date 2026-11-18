@@ -27,7 +27,7 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 

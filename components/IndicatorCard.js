@@ -16,7 +16,7 @@ export default function IndicatorCard({ name, value, date, l12m, unit = '%' }) {
             </div>
 
             <div className="flex flex-col">
-                <span className="text-xs font-bold text-slate-400 uppercase mb-1">Acumulado 12 Meses</span>
+                <span className="text-sm font-medium text-slate-500 mb-1">Acumulado em 12 meses</span>
                 <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-black text-[#0067B4] leading-none">
                         {l12m ? l12m.toFixed(4) : '0.0000'}
@@ -30,8 +30,8 @@ export default function IndicatorCard({ name, value, date, l12m, unit = '%' }) {
                     <span className="text-slate-400 font-medium italic">Variação do mês:</span>
                     <span className="font-bold text-[#051B40] bg-slate-100 px-2 py-0.5 rounded-md">{value?.toFixed(2)}%</span>
                 </div>
-                <div className="flex justify-between items-center text-[10px] text-slate-300 uppercase mt-2 font-bold tracking-widest">
-                    <span>Atualização</span>
+                <div className="flex justify-between items-center text-xs text-slate-400 mt-2">
+                    <span>Último dado</span>
                     <span>
                         {(() => {
                             if (!date) return '-';
